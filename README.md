@@ -1,4 +1,3 @@
-```markdown
 # K3s Certbot with Loopia DNS Challenge
 
 Automate SSL certificate management in K3s using Certbot with DNS-01 challenge via Loopia API.
