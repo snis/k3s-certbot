@@ -1,0 +1,9 @@
+# Kubernetes sensitive configs
+k8s/cert-manager/base/secrets.yaml
+k8s/cert-manager/base/cronjob.yaml
+*.generated.yaml
+
+# Local environment files
+.env
+*.local
+*.secret

@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: certbot-renew
+  namespace: cert-manager
+spec:
+  schedule: "0 0 1 * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: certbot
+              image: ghcr.io/snis/k3s-certbot/certbot-loopia:latest
+              args:
+                - certonly
+                - --dns-loopia
+                - --dns-loopia-credentials=/etc/letsencrypt/loopia.ini
+                - -d *.DOMAIN_PLACEHOLDER
+                - -d DOMAIN_PLACEHOLDER
+                - --non-interactive
+                - --agree-tos
+                - --email EMAIL_PLACEHOLDER
