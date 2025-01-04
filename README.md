@@ -40,7 +40,7 @@ While Loopia's documentation suggests up to 15 minutes for propagation, in pract
 ## Project Structure
 
 ```
-k3s-certbot/
+k3s-certbot-loopia/
 ├── .github/
 │   └── workflows/          # GitHub Actions workflows
 │       └── docker-build.yml
@@ -66,8 +66,8 @@ k3s-certbot/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/snis/k3s-certbot.git
-cd k3s-certbot
+git clone https://github.com/snis/k3s-certbot-loopia.git
+cd k3s-certbot-loopia
 ```
 
 2. Generate Kubernetes configurations:

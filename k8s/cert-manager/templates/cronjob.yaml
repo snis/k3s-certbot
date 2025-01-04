@@ -14,7 +14,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: certbot
-              image: ghcr.io/snis/k3s-certbot/certbot-loopia:latest
+              image: ghcr.io/snis/k3s-certbot-loopia/certbot-loopia:latest
               args:
                 - certonly
                 - --authenticator
