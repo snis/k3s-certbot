@@ -4,24 +4,42 @@ metadata:
   name: certbot-renew
   namespace: cert-manager
 spec:
-  schedule: "0 0 1 * *"
+  schedule: "37 13 * * 0"
   jobTemplate:
     spec:
       template:
         spec:
+          securityContext:
+            fsGroup: 1000
           restartPolicy: OnFailure
           containers:
             - name: certbot
               image: ghcr.io/snis/k3s-certbot/certbot-loopia:latest
               args:
                 - certonly
-                - --dns-loopia
-                - --dns-loopia-credentials=/etc/letsencrypt/loopia.ini
-                - -d *.DOMAIN_PLACEHOLDER
-                - -d DOMAIN_PLACEHOLDER
+                - --authenticator
+                - dns-loopia
+                - --dns-loopia-credentials
+                - /etc/letsencrypt/loopia.ini
+                - --dns-loopia-propagation-seconds
+                - "300"
+                - --domain
+                - "*.DOMAIN_PLACEHOLDER"
+                - --domain
+                - "DOMAIN_PLACEHOLDER"
                 - --non-interactive
                 - --agree-tos
-                - --email EMAIL_PLACEHOLDER
+                - --email
+                - EMAIL_PLACEHOLDER
+                - --logs-dir
+                - /etc/letsencrypt/logs
+                - --work-dir
+                - /etc/letsencrypt/work
+                - --config-dir
+                - /etc/letsencrypt
+              securityContext:
+                runAsUser: 1000
+                runAsGroup: 1000
               volumeMounts:
                 - name: cert-storage
                   mountPath: /etc/letsencrypt
@@ -35,6 +53,7 @@ spec:
             - name: loopia-credentials
               secret:
                 secretName: loopia-credentials
+                defaultMode: 0600
                 items:
                   - key: loopia.ini
                     path: loopia.ini
