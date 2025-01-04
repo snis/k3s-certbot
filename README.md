@@ -75,7 +75,7 @@ cd k3s-certbot
 ./scripts/generate-k8s-config.sh
 ```
 When prompted, enter:
-- Your domain (e.g., snis.nu)
+- Your domain (e.g., example.com)
 - Email address for Let's Encrypt notifications
 - Loopia API credentials
 
