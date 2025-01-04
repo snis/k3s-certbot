@@ -1,14 +1,22 @@
 name: Build Certbot Loopia Image
 on:
+  # On changes to Docker files
   push:
     paths:
       - 'docker/**'
     branches: [ main ]
+  # Manual trigger
   workflow_dispatch:
+  # Check for updates weekly
+  schedule:
+    - cron: '0 5 * * 1'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -17,6 +25,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check PyPI package availability
+        run: |
+          curl --fail -s https://pypi.org/pypi/certbot-dns-loopia/json || exit 1
       - uses: docker/build-push-action@v5
         with:
           context: docker
