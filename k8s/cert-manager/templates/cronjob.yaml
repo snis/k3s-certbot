@@ -9,6 +9,7 @@ spec:
     spec:
       template:
         spec:
+          restartPolicy: OnFailure
           containers:
             - name: certbot
               image: ghcr.io/snis/k3s-certbot/certbot-loopia:latest
@@ -21,3 +22,19 @@ spec:
                 - --non-interactive
                 - --agree-tos
                 - --email EMAIL_PLACEHOLDER
+              volumeMounts:
+                - name: cert-storage
+                  mountPath: /etc/letsencrypt
+                - name: loopia-credentials
+                  mountPath: /etc/letsencrypt/loopia.ini
+                  subPath: loopia.ini
+          volumes:
+            - name: cert-storage
+              persistentVolumeClaim:
+                claimName: cert-storage
+            - name: loopia-credentials
+              secret:
+                secretName: loopia-credentials
+                items:
+                  - key: loopia.ini
+                    path: loopia.ini
