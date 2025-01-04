@@ -1,6 +1,6 @@
 # K3s Certbot with Loopia DNS Challenge
 
-Automate SSL certificate management in K3s using Certbot with DNS-01 challenge via Loopia API. This project helps you automatically obtain and renew wildcard certificates for domains managed by Loopia.
+Automate SSL certificate management in K3s using Certbot with DNS-01 challenge via Loopia API. This project helps you automatically obtain and renew wildcard certificates for domains managed by Loopia, using the [certbot-dns-loopia](https://pypi.org/project/certbot-dns-loopia/) plugin by [runfalk](https://github.com/runfalk).
 
 ## Prerequisites
 
@@ -8,6 +8,34 @@ Automate SSL certificate management in K3s using Certbot with DNS-01 challenge v
 - Domain registered with Loopia
 - Loopia API credentials (obtain from https://customerzone.loopia.com/api)
 - Valid email for Let's Encrypt notifications
+
+## DNS Challenge Configuration
+
+This setup uses DNS-01 challenge which is required for wildcard certificates. The process:
+1. Certbot creates a TXT record using Loopia's API
+2. Let's Encrypt validates the record
+3. Certificate is issued when validation succeeds
+
+### DNS Propagation Time
+
+By default, the Loopia plugin waits 15 minutes (900 seconds) for DNS propagation. This project uses a 5-minute (300 seconds) wait time, which has been tested to work reliably. The wait time can be adjusted in the CronJob template:
+
+```yaml
+--dns-loopia-propagation-seconds "300"
+```
+
+While Loopia's documentation suggests up to 15 minutes for propagation, in practice:
+- Changes often propagate within 1-2 minutes
+- The system has been known to work with as little as 90 seconds
+- The default 5-minute wait provides a good balance between speed and reliability
+
+### Known Issues
+
+1. ACME Record Cleanup
+   - The plugin may show errors when trying to remove the ACME challenge TXT record
+   - This is a known issue with the cleanup process
+   - Does not affect certificate issuance or renewal
+   - The temporary TXT records have a 30-second TTL and will expire automatically
 
 ## Project Structure
 
@@ -47,9 +75,9 @@ cd k3s-certbot
 ./scripts/generate-k8s-config.sh
 ```
 When prompted, enter:
-- Your domain (e.g., example.com)
+- Your domain (e.g., snis.nu)
 - Email address for Let's Encrypt notifications
-- Loopia API credentials (e.g., userbot@loopiaapi, p4s$-the-w0rd)
+- Loopia API credentials
 
 3. Apply configurations to your K3s cluster:
 ```bash
@@ -65,7 +93,7 @@ kubectl get cronjobs -n cert-manager
 ## Certificate Management
 
 ### Automatic Renewal
-The CronJob is configured to run monthly to check and renew certificates as needed. No manual intervention is required.
+The CronJob runs on the 13th of every other month at 00:37 to check and renew certificates as needed. The schedule ensures renewals happen well before expiration of the 90-day certificates.
 
 ### Manual Renewal
 To trigger a manual certificate renewal:
@@ -77,7 +105,7 @@ kubectl create job --from=cronjob/certbot-renew manual-renew -n cert-manager
 
 - Generated configuration files in `k8s/cert-manager/base/` contain sensitive data
 - The `secrets.yaml` file contains API credentials - keep it secure
-- Never commit secrets or generated configurations to git (they are gitignored by default in .gitignore)
+- Never commit secrets or generated configurations to git (they are gitignored by default)
 - Store credentials securely and restrict access to configuration files
 
 ## Docker Image
@@ -103,6 +131,7 @@ kubectl logs <pod-name> -n cert-manager
    - Ensure Loopia API credentials are correct
    - Verify domain ownership and API access
    - Check if the certificate storage volume is properly mounted
+   - DNS propagation errors might require adjusting the wait time
 
 ## Contributing
 
@@ -111,6 +140,10 @@ kubectl logs <pod-name> -n cert-manager
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
+
+## Credits
+
+This project uses the [certbot-dns-loopia](https://pypi.org/project/certbot-dns-loopia/) plugin created by [runfalk](https://github.com/runfalk).
 
 ## License
 
