@@ -47,9 +47,9 @@ cd k3s-certbot
 ./scripts/generate-k8s-config.sh
 ```
 When prompted, enter:
-- Your domain (e.g., snis.nu)
+- Your domain (e.g., example.com)
 - Email address for Let's Encrypt notifications
-- Loopia API credentials
+- Loopia API credentials (e.g., userbot@loopiaapi, p4s$-the-w0rd)
 
 3. Apply configurations to your K3s cluster:
 ```bash
@@ -77,7 +77,7 @@ kubectl create job --from=cronjob/certbot-renew manual-renew -n cert-manager
 
 - Generated configuration files in `k8s/cert-manager/base/` contain sensitive data
 - The `secrets.yaml` file contains API credentials - keep it secure
-- Never commit secrets or generated configurations to git (they are gitignored by default)
+- Never commit secrets or generated configurations to git (they are gitignored by default in .gitignore)
 - Store credentials securely and restrict access to configuration files
 
 ## Docker Image
